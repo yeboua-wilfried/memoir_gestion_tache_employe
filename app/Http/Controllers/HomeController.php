@@ -14,12 +14,12 @@ class HomeController extends Controller
         $user = Auth::user();
 
         return view('home', [
-            'tachesEnCours' => $user->tachesRealisees()->where('etat', 'en_cours')->count(),
-            'tachesTerminees' => $user->tachesRealisees()->where('etat', 'terminee')->count(),
-            'projetsActifs' => $user->tachesRealisees()->whereNotNull('projet_id')->pluck('projet_id')->unique()->count(),
-            'tachesDuJour' => $user->tachesRealisees()->whereDate('date_debut', now())->get(),
-            'prochainesTaches' => $user->tachesRealisees()->whereDate('date_debut', '>', now())->orderBy('date_debut')->limit(5)->get(),
-            'tachesEnRetard' => $user->tachesRealisees()->where('etat', '!=', 'terminee')->whereDate('date_fin', '<', now())->get(),
+            'tachesEnCours' => $user->tacheRealiserUsers()->where('etat', 'en_cours')->count(),
+            'tachesTerminees' => $user->tacheRealiserUsers()->where('etat', 'terminee')->count(),
+            'projetsActifs' => $user->tacheRealiserUsers()->whereNotNull('projet_id')->pluck('projet_id')->unique()->count(),
+            'tachesDuJour' => $user->tacheRealiserUsers()->whereDate('date_debut', now())->get(),
+            'prochainesTaches' => $user->tacheRealiserUsers()->whereDate('date_debut', '>', now())->orderBy('date_debut')->limit(5)->get(),
+            'tachesEnRetard' => $user->tacheRealiserUsers()->where('etat', '!=', 'terminee')->whereDate('date_fin', '<', now())->get(),
         ]);
     }
 }

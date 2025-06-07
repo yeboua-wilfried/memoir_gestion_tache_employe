@@ -106,4 +106,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    // App\Models\User.php
+
+    public static function updateDisponibiliteContratExpiré()
+    {
+        static::whereNotNull('date_fin_contrat')
+            ->where('date_fin_contrat', '<=', now())
+            ->whereIn('disponibilite_user', ['disponible', 'Indisponible'])
+            ->update(['disponibilite_user' => 'départ']);
+    }
 }

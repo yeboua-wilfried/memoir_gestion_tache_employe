@@ -31,7 +31,9 @@
             <select name="role" id="role" class="mt-1 block w-full rounded border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white shadow-sm" required>
                 <option value="">-- Sélectionnez un rôle --</option>
                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Administrateur</option>
+                <option value="pdg" {{ old('role') === 'pdg' ? 'selected' : '' }}>PDG</option>
                 <option value="super_employe" {{ old('role') === 'super_employe' ? 'selected' : '' }}>Super employé</option>
+                <option value="super_employe_rh" {{ old('role') === 'super_employe_rh' ? 'selected' : '' }}>Super employé RH</option>
                 <option value="medium_employe" {{ old('role') === 'medium_employe' ? 'selected' : '' }}>Employé medium</option>
                 <option value="bottom_employe" {{ old('role') === 'bottom_employe' ? 'selected' : '' }}>Employé simple</option>
             </select>

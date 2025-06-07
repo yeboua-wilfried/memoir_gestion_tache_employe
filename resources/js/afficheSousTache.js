@@ -10,8 +10,22 @@ document.addEventListener('DOMContentLoaded', function () {
         tacheSection.classList.toggle('hidden');
     });
 
-    addTacheBtn.addEventListener('click', function () {
-        const newTache = document.querySelector('.tacheItem').cloneNode(true);
+    function addDeleteEventListeners(container) {
+        container.querySelectorAll('.deleteTache').forEach(button => {
+            button.addEventListener('click', function () {
+                const tacheItem = button.closest('.tacheItem');
+                if (tacheContainer.children.length > 1) {
+                    tacheItem.remove();
+                } else {
+                    alert("Vous devez avoir au moins une tâche.");
+                }
+            });
+        });
+    }
+
+    function cloneTacheItem() {
+        const originalTache = document.querySelector('.tacheItem');
+        const newTache = originalTache.cloneNode(true);
 
         newTache.querySelectorAll('input, textarea, select').forEach(input => {
             const name = input.getAttribute('name');
@@ -22,12 +36,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (input.tagName === 'SELECT') {
                 input.selectedIndex = -1;
+            } else if (input.type === 'checkbox') {
+                input.checked = false;
             } else {
                 input.value = '';
             }
         });
 
         tacheContainer.appendChild(newTache);
+        addDeleteEventListeners(newTache);
         tacheIndex++;
-    });
+    }
+
+    addTacheBtn.addEventListener('click', cloneTacheItem);
+
+    // Appliquer l'événement à la tâche initiale
+    addDeleteEventListeners(tacheContainer);
 });

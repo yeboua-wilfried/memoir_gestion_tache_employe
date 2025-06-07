@@ -20,7 +20,7 @@ class AnnexeController extends Controller
         Annexe::create([
             'nom' => 'texte_' . now()->format('Ymd_His'),
             'description' => $texte,
-            'type' => 'texte',
+            'type' => 'annexe_texte',
             'taille' => strlen($texte),
             'tache_id' => $tache->id,
         ]);
@@ -43,7 +43,7 @@ class AnnexeController extends Controller
             'nom' => $nom,
             'description' => null,
             'repertoire' => $chemin,
-            'type' => 'fichier',
+            'type' => 'annexe_fichier',
             'taille' => $taille,
             'tache_id' => $tache->id,
         ]);
@@ -61,4 +61,45 @@ class AnnexeController extends Controller
 
         return redirect()->back();
     }
+
+    public function edit(Annexe $annexe)
+    {
+        return view('annexes.edit', compact('annexe'));
+    }
+
+    public function update(Request $request, Annexe $annexe)
+    {
+        if ($annexe->type === 'annexe_texte') {
+            $request->validate([
+                'description' => 'required|string',
+            ]);
+
+            $annexe->update([
+                'description' => $request->description,
+                'taille' => strlen($request->description),
+            ]);
+
+        } elseif ($annexe->type === 'annexe_fichier') {
+            $request->validate([
+                'fichier' => 'required|file',
+            ]);
+
+            // Supprimer l'ancien fichier
+            if ($annexe->repertoire) {
+                \Storage::disk('public')->delete($annexe->repertoire);
+            }
+
+            $file = $request->file('fichier');
+            $chemin = $file->store("annexes/tache_{$annexe->tache_id}", 'public');
+
+            $annexe->update([
+                'nom' => $file->getClientOriginalName(),
+                'repertoire' => $chemin,
+                'taille' => $file->getSize(),
+            ]);
+        }
+
+        return redirect()->route('taches.show', $annexe->tache_id);
+    }
+
 }

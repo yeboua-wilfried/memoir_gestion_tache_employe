@@ -46,10 +46,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/annexes/texte/{tache}', [AnnexeController::class, 'storeTexte'])->name('annexes.storeTexte');
     Route::post('/annexes/fichier/{tache}', [AnnexeController::class, 'storeFichier'])->name('annexes.storeFichier');
+    Route::get('/annexes/{annexe}/edit', [AnnexeController::class, 'edit'])->name('annexes.edit');
+    Route::put('/annexes/{annexe}', [AnnexeController::class, 'update'])->name('annexes.update');
     Route::delete('/annexes/{annexe}', [AnnexeController::class, 'destroy'])->name('annexes.destroy');
 });
 
-Route::middleware(['auth', 'role:super_employe,admin'])->group(function () {
+Route::middleware(['auth', 'role:super_employe,pdg,admin,super_employe_rh'])->group(function () {
     Route::get('/liste_employe', [EmployeController::class, 'index'])->name('employes.index');
     Route::get('/employes/create', [EmployeController::class, 'create'])->name('employes.create');
     Route::post('/employes', [EmployeController::class, 'store'])->name('employes.store');
@@ -59,6 +61,7 @@ Route::middleware(['auth', 'role:super_employe,admin'])->group(function () {
 
     Route::get('/taches', [TacheController::class, 'index'])->name('taches.index');
     Route::get('/taches/create', [TacheController::class, 'create'])->name('taches.create');
+    Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
     Route::post('/taches', [TacheController::class, 'store'])->name('taches.store');
     Route::get('/taches/{id}/edit', [TacheController::class, 'edit'])->name('taches.edit');
     Route::patch('/taches/{id}', [TacheController::class, 'update'])->name('taches.update');
@@ -69,8 +72,9 @@ Route::middleware(['auth', 'role:super_employe,admin'])->group(function () {
     Route::get('/postes', [PosteController::class, 'index'])->name('postes.index');
     Route::get('/postes/create', [PosteController::class, 'create'])->name('postes.create');
     Route::post('/postes', [PosteController::class, 'store'])->name('postes.store');
-    Route::get('/postes/{id}/edit', [PosteController::class, 'edit'])->name('postes.edit');
-    Route::patch('/postes/{id}', [PosteController::class, 'update'])->name('postes.update');
+    Route::get('/postes/{poste}/edit', [PosteController::class, 'edit'])->name('postes.edit');
+    Route::patch('/postes/{poste}', [PosteController::class, 'update'])->name('postes.update');
+    Route::resource('postes', PosteController::class);
     Route::delete('/postes/{id}', [PosteController::class, 'destroy'])->name('postes.destroy');
 
     Route::get('/departements', [DepartementController::class, 'index'])->name('departements.index');

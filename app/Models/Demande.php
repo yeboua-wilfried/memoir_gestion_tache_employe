@@ -19,7 +19,7 @@ class Demande extends Model
 
         'date_debut',
         'date_fin',
-        'etat_disponibilite',
+        'etat_demande',
         'motif_absence',
         'user_id',
     ];

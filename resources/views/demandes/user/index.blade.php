@@ -29,7 +29,7 @@
                     @foreach($demandes as $demande)
                         <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400">
                             <td class="py-3 px-6">{{ $demande->created_at->format('d/m/Y') }}</td>
-                            <td class="py-3 px-6">{{ $demande->motifAbsence->nom ?? 'Non spécifié' }}</td>
+                            <td class="py-3 px-6">{{ $demande->motif_absence ?? 'Non spécifié' }}</td>
                             <td class="py-3 px-6">{{ $demande->date_debut }} au {{ $demande->date_fin }}</td>
                             <td class="py-3 px-6">
                                 @if($demande->statut == 'acceptée')

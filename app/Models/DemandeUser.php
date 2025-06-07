@@ -16,8 +16,6 @@ class DemandeUser extends Model
     protected $fillable = [
         'user_id',
         'demande_id',
-        'etat_demande',
-        'date_reponce_demande',
     ];
 
     public function user()

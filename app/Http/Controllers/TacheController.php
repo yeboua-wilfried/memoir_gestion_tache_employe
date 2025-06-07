@@ -7,18 +7,37 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\TacheUser;
 use App\Models\Tache;
 use App\Models\User;
+use App\Models\Equipe;
 
 
 class TacheController extends Controller
 {
     function index()
     {
-        $users = User::all();
-        $taches = Tache::with('user')->get();
-        return view('taches.index')->with([
-            'taches' => $taches,
-            'users' => $users,
-        ]);
+        $user = Auth::user();
+        $poste = $user->poste_id;
+
+        if ($poste === 5) {
+            // Récupérer les utilisateurs de la même équipe
+            $employes = User::where('equipe_id', $user->equipe_id)->pluck('id');
+        } elseif ($poste === 6) {
+            // Récupérer les IDs des équipes du même département
+            $equipeIds = Equipe::where('departement_id', $user->equipe->departement_id)->pluck('id');
+
+            // Récupérer les utilisateurs appartenant à ces équipes
+            $employes = User::whereIn('equipe_id', $equipeIds)->pluck('id');
+        } elseif ($poste === 1 || $poste === 2){
+            $employes = User::pluck('id');
+        } else {
+            // Si ce n'est ni l'un ni l'autre, rediriger ou afficher rien
+            return redirect()->back()->with('error', "Accès non autorisé.");
+        }
+
+        // Récupérer les tâches assignées à ces employés
+        $tacheIds = TacheUser::whereIn('user_id', $employes)->pluck('tache_id');
+        $taches = Tache::with('user')->whereIn('id', $tacheIds)->get();
+
+        return view('taches.index', compact('taches'));
     }
 
     function indexUser()
@@ -43,51 +62,51 @@ class TacheController extends Controller
 
     function create()
     {
-        $typesTache = TypeTache::all();
-        $users = Auth::user();
-        return view('taches.create')->with([
-            'typesTache' => $typesTache,
-            'users' => $users,
-        ]);
+        $user = auth()->user();
+        $poste = $user->poste_id;
+        $users = collect(); // Valeur par défaut
+
+        if ($poste === 5) {
+            // Chef d'équipe
+            $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
+
+        } elseif ($poste === 6) {
+            // Chef de département
+            $users = User::whereHas('equipe', function ($query) use ($user) {
+                    $query->where('departement_id', $user->equipe->departement_id);
+                })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
+
+        } elseif (in_array($poste, [1, 2])) {
+            // Admins ou DG
+            $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
+
+        } else {
+            return redirect()->route('home')->with('error', 'Vous n\'êtes pas autorisé à créer un projet.');
+        }
+
+        return view('taches.create', compact('users'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nom' => 'required|string|max:255',
-            'description' => 'required|string|max:1000',
-            'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after_or_equal:date_debut',
-            'etat' => 'required|in:en_cours,terminee,annulee',
-            'user_id' => 'required|exists:users,id',
-            'type_tache_id' => 'required|exists:type_taches,id',
-        ]);
+        $data = $request->input('taches');
 
-        // 1. Création de la tâche principale
-        $tache = Tache::create($request->all());
+        foreach ($data as $tacheData) {
+            // Création de la tâche
+            $tache = new Tache();
+            $tache->nom = $tacheData['nom'];
+            $tache->description = $tacheData['description'];
+            $tache->date_debut = $tacheData['date_debut'];
+            $tache->date_fin = $tacheData['date_fin'];
+            $tache->projet_id = null; // tâche principale
+            $tache->user_id = auth()->id();
+            $tache->save();
 
-        // 2. Si le type de tâche est 1, enregistrer les sous-tâches
-        if ((int)$request->type_tache_id === 2 && $request->has('sous_taches')) {
-            foreach ($request->sous_taches as $sousTacheData) {
-                $request->validate([
-                    "sous_taches.*.nom" => "required|string|max:255",
-                    "sous_taches.*.description" => "required|string|max:1000",
-                    "sous_taches.*.date_debut" => "required|date",
-                    "sous_taches.*.date_fin" => "required|date|after_or_equal:sous_taches.*.date_debut",
-                    "sous_taches.*.etat" => "required|in:en_attente,en_cours,terminee"
-                ]);
-
-                SousTache::create([
-                    'nom' => $sousTacheData['nom'],
-                    'description' => $sousTacheData['description'],
-                    'date_debut' => $sousTacheData['date_debut'],
-                    'date_fin' => $sousTacheData['date_fin'],
-                    'etat' => $sousTacheData['etat'],
-                    'tache_id' => $tache->id
-                ]);
+            // Affectation des utilisateurs (via la table pivot tache_user)
+            if (!empty($tacheData['users'])) {
+                $tache->tacheRealiserUsers()->attach($tacheData['users']);
             }
         }
-
         return redirect()->route('taches.index')->with('success', 'Tâche créée avec succès.');
     }
 
@@ -105,16 +124,83 @@ class TacheController extends Controller
 
     function edit($id)
     {
-        // Logique pour afficher le formulaire d'édition d'une tâche
+        $user = auth()->user();
+        $poste = $user->poste_id;
+
+        if (!in_array($poste, [1, 2, 5, 6])) {
+            return redirect()->route('home')->with('error', 'Vous n\'êtes pas autorisé à modifier ce projet.');
+        }
+
+        // Récupération du projet
+        $tache = Tache::findOrFail($id); // <-- Cette ligne manquait
+
+        // Chargement des relations tâches + utilisateurs
+        $tache->load('tacheRealiserUsers');
+
+        $users = collect(); // Valeur par défaut
+
+        if ($poste === 5) {
+            // Chef d'équipe
+            $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
+
+        } elseif ($poste === 6) {
+            // Chef de département
+            $users = User::whereHas('equipe', function ($query) use ($user) {
+                    $query->where('departement_id', $user->equipe->departement_id);
+                })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
+
+        } elseif (in_array($poste, [1, 2])) {
+            // Admins ou DG
+            $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
+
+        } else {
+            return redirect()->route('home')->with('error', 'Vous n\'êtes pas autorisé à créer un tache.');
+        }
+
+        // Récupération des utilisateurs disponibles
+
+        return view('taches.edit', compact('tache', 'users'));
     }
-    function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
-        // Logique pour mettre à jour une tâche existante
+        $tache = Tache::findOrFail($id);
+
+        // Validation (optionnelle mais recommandée)
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'date_debut' => 'required|date',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
+        ]);
+
+        // Mise à jour des champs
+        $tache->nom = $request->input('nom');
+        $tache->description = $request->input('description');
+        $tache->date_debut = $request->input('date_debut');
+        $tache->date_fin = $request->input('date_fin');
+        $tache->save();
+
+        // Mise à jour des utilisateurs assignés
+        // On récupère les utilisateurs sélectionnés depuis le formulaire
+        $users = $request->input('taches.0.users', []);
+        $tache->tacheRealiserUsers()->sync($users);
+
+        return redirect()->route('taches.index')->with('success', 'Tâche modifiée avec succès.');
     }
-    function destroy($id)
+
+    public function destroy($id)
     {
-        // Logique pour supprimer une tâche
+        $tache = Tache::findOrFail($id);
+
+        // Détacher les relations avec les utilisateurs si la table pivot est utilisée
+        $tache->tacheRealiserUsers()->detach();
+
+        // Supprimer la tâche
+        $tache->delete();
+
+        return redirect()->route('taches.index')->with('success', 'Tâche supprimée avec succès.');
     }
+
 
     public function valider(Tache $tache)
     {

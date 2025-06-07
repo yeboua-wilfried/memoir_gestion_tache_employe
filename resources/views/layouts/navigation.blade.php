@@ -21,7 +21,7 @@
                 @if (Auth::user())
 
                     <!-- Navigation Links -->
-                    @if (Auth::user()->poste->role === 'admin')
+                    @if (Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg')
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}

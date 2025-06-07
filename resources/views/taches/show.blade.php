@@ -72,6 +72,10 @@
                         Supprimer
                     </button>
                 </form>
+
+                <a href="{{ route('annexes.edit', $annexe) }}" class="mt-2 block text-sm text-yellow-600 hover:underline">
+                ✏️ Modifier
+                </a>
             </div>
         @empty
             <p class="text-gray-500 col-span-full">Aucune annexe pour cette tâche.</p>

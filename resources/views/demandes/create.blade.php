@@ -20,14 +20,14 @@
                 <select id="motif_abs" name="motif_abs" required
                     class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">-- Sélectionner un motif --</option>
-                    <option value="1">Congé annuel</option>
-                    <option value="2">Congé maladie</option>
-                    <option value="3">Congé maternité</option>
-                    <option value="4">Congé paternité</option>
-                    <option value="5">Congé sans solde</option>
-                    <option value="6">Congé de formation</option>
-                    <option value="9">Congé pour raisons de santé</option>
-                    <option value="10">Autre</option>
+                    <option value="Congé annuel">Congé annuel</option>
+                    <option value="Congé maladie">Congé maladie</option>
+                    <option value="Congé maternité">Congé maternité</option>
+                    <option value="Congé paternité">Congé paternité</option>
+                    <option value="Congé sans solde">Congé sans solde</option>
+                    <option value="Congé de formation">Congé de formation</option>
+                    <option value="Congé pour raisons de santé">Congé pour raisons de santé</option>
+                    <option value="Autre">Autre</option>
                 </select>
             </div>
 

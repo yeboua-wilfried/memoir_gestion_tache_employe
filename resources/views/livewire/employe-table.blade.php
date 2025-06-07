@@ -16,6 +16,11 @@
                 <option value="{{ $eq->id }}">{{ $eq->nom }}</option>
             @endforeach
         </select>
+
+        <!-- Ajouter sous le champ de recherche et filtre -->
+        <button wire:click="toggleAnciens" class="mb-4 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+            {{ $afficherAnciens ? 'Masquer les anciens employés' : 'Afficher les anciens employés' }}
+        </button>
     </div>
 
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Liste des employés</h1>

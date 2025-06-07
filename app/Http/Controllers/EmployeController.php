@@ -60,9 +60,7 @@ class EmployeController extends Controller
 
         // Règle 1 : Un seul chef par équipe
         if ($poste->isMediumEmploye()) {
-            $chefEquipeExiste = User::where('poste_id', $poste->id)
-                ->where('equipe_id', $equipe->id)
-                ->exists();
+            $chefEquipeExiste = User::where('poste_id', $poste->id)->where('equipe_id', $equipe->id)>exists();
 
             if ($chefEquipeExiste) {
                 return back()->withErrors(['equipe_id' => 'Cette équipe a déjà un chef d\'équipe.'])->withInput();
@@ -140,13 +138,49 @@ class EmployeController extends Controller
             'equipe_id' => 'required|integer|exists:equipes,id',
         ]);
 
+        $poste = Poste::find($request->poste_id);
+        $equipe = Equipe::find($request->equipe_id);
+
+        // Règle 1 : Un seul chef par équipe
+        if ($poste->isMediumEmploye()) {
+            $chefEquipeExiste = User::where('poste_id', $poste->id)
+                ->where('equipe_id', $equipe->id)
+                ->exists();
+
+            if ($chefEquipeExiste) {
+                return back()->withErrors(['equipe_id' => 'Cette équipe a déjà un chef d\'équipe.'])->withInput();
+            }
+        }
+
+        // Règle 2 : Un seul chef de département par département
+        if ($poste->isSuperEmploye()) {
+            $chefDepartementExiste = User::where('poste_id', $poste->id)
+                ->whereHas('equipe', function ($query) use ($equipe) {
+                    $query->where('departement_id', $equipe->departement_id);
+                })
+                ->exists();
+
+            if ($chefDepartementExiste) {
+                return back()->withErrors(['equipe_id' => 'Ce département a déjà un chef de département.'])->withInput();
+            }
+        }
+
         $user = User::findOrFail($id);
         $user->update($request->all());
 
         return redirect()->route('employes.index')->with('success', 'Utilisateur mis à jour.');
     }
+
     function destroy($id)
     {
-        // Logique pour supprimer un employé
+        // Récupère l'utilisateur
+        $user = User::findOrFail($id);
+
+        // Supprime l'utilisateur
+        $user->delete();
+
+        // Redirige avec un message de succès
+        return redirect()->route('employes.index')->with('success', 'Utilisateur supprimé avec succès.');
+
     }
 }

@@ -47,48 +47,48 @@ class DemandeController extends Controller
         ]);
 
         Demande::create([
-            'nom' => 'Demande de' . $request->motif_abs . ' de ' . auth()->user()->name,
+            'nom' => 'Demande de ' . $request->motif_abs . ' de ' . auth()->user()->name,
             'description' => $request->description,
             'date_demande' => now(),
-            'etat_demande' => 'en attente',
             'date_debut' => $request->date_debut,
             'date_fin' => $request->date_fin,
-            'etat_disponibilite' => 'en attente',
+            'etat_demande' => 'en attente',
             'motif_absence' => $request->motif_abs,
             'user_id' => auth()->id(),
         ]);
 
 
         // Récupération des supérieurs
-        $user = auth()->user();
+        /*$user = auth()->user();
         $equipe = $user->equipe;
         $departement = $equipe->departement ?? null;
 
         $chefs = collect();
 
         if ($equipe) {
-            $chefEquipe = $equipe->users()->where('poste_id', 'chef_equipe')->first();
+            $chefEquipe = $equipe->users()->where('poste_id', 5)->first();
             if ($chefEquipe) $chefs->push($chefEquipe);
         }
 
         if ($departement) {
-            $chefDept = $departement->users()->where('poste_id', 'chef_departement')->first();
+            $chefDept = $departement->users()->where('poste_id', 6)->first();
             if ($chefDept) $chefs->push($chefDept);
         }
 
         // Ajouter les RHs (poste_id == rh par exemple)
-        $rhs = User::where('poste_id', 'rh')->get();
+        $rhs = User::where('poste_id', 6)->where('equipe_id', 7)->get();
+
         $chefs = $chefs->merge($rhs);
 
         // Envoyer la notification
         foreach ($chefs as $superieur) {
-            Notification::create([
+            DemandeUser::create([
                 'user_id' => $superieur->id,
                 'type' => 'demande',
                 'message' => 'Nouvelle demande d\'indisponibilité de ' . $user->name,
                 'sent_at' => now(),
             ]);
-        }
+        }*/
 
         return redirect()->route('demande.user.index', auth()->id())->with('success', 'Demande envoyée avec succès.');
     }
