@@ -15,18 +15,18 @@ class TacheController extends Controller
     function index()
     {
         $user = Auth::user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
 
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Récupérer les utilisateurs de la même équipe
             $employes = User::where('equipe_id', $user->equipe_id)->pluck('id');
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Récupérer les IDs des équipes du même département
             $equipeIds = Equipe::where('departement_id', $user->equipe->departement_id)->pluck('id');
 
             // Récupérer les utilisateurs appartenant à ces équipes
             $employes = User::whereIn('equipe_id', $equipeIds)->pluck('id');
-        } elseif ($poste === 1 || $poste === 2){
+        } elseif ($role === 'pdg' || $role === 'admin'){
             $employes = User::pluck('id');
         } else {
             // Si ce n'est ni l'un ni l'autre, rediriger ou afficher rien
@@ -63,20 +63,20 @@ class TacheController extends Controller
     function create()
     {
         $user = auth()->user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
         $users = collect(); // Valeur par défaut
 
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Chef d'équipe
             $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
 
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Chef de département
             $users = User::whereHas('equipe', function ($query) use ($user) {
                     $query->where('departement_id', $user->equipe->departement_id);
                 })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
 
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Admins ou DG
             $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
 
@@ -125,31 +125,31 @@ class TacheController extends Controller
     function edit($id)
     {
         $user = auth()->user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
 
-        if (!in_array($poste, [1, 2, 5, 6])) {
+        if (!in_array($role, ['medium_employe', 'super_employe_rh', 'super_employe', 'pdg', 'admin'])) {
             return redirect()->route('home')->with('error', 'Vous n\'êtes pas autorisé à modifier ce projet.');
         }
 
         // Récupération du projet
-        $tache = Tache::findOrFail($id); // <-- Cette ligne manquait
+        $tache = Tache::findOrFail($id);
 
         // Chargement des relations tâches + utilisateurs
         $tache->load('tacheRealiserUsers');
 
         $users = collect(); // Valeur par défaut
 
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Chef d'équipe
             $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
 
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Chef de département
             $users = User::whereHas('equipe', function ($query) use ($user) {
                     $query->where('departement_id', $user->equipe->departement_id);
                 })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
 
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Admins ou DG
             $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
 
@@ -204,10 +204,22 @@ class TacheController extends Controller
 
     public function valider(Tache $tache)
     {
-        $tache->etat = 'terminer';
+        // Met à jour l'état de la tâche
+        $tache->etat = 'terminee';
         $tache->save();
 
-        return redirect()->back()->with('success', 'Tâche validée avec succès.');
-    }
+        // Vérifie si toutes les tâches du projet sont terminées
+        if ($tache->projet) {
+            $toutesTerminees = $tache->projet->taches()->where('etat', '!=', 'terminee')->doesntExist();
 
+            //dd($toutesTerminees);
+
+            if ($toutesTerminees) {
+                $tache->projet->etat = 'terminee';
+                $tache->projet->save();
+            }
+        }
+
+        return redirect()->route('taches.user.index')->with('success', 'Tâche validée avec succès.');
+    }
 }

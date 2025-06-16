@@ -32,12 +32,12 @@
                             <td class="py-3 px-6">{{ $demande->motif_absence ?? 'Non spécifié' }}</td>
                             <td class="py-3 px-6">{{ $demande->date_debut }} au {{ $demande->date_fin }}</td>
                             <td class="py-3 px-6">
-                                @if($demande->statut == 'acceptée')
+                                @if($demande->etat_demande == 'validée')
                                     <span class="px-3 py-1 inline-flex text-sm rounded-full bg-green-200 text-green-800 font-semibold">Acceptée</span>
-                                @elseif($demande->statut == 'refusée')
+                                @elseif($demande->etat_demande == 'refusée')
                                     <span class="px-3 py-1 inline-flex text-sm rounded-full bg-red-200 text-red-800 font-semibold">Refusée</span>
-                                @elseif($demande->etat_disponibilite == 'expirée')
-                                    <span class="px-3 py-1 inline-flex text-sm rounded-full bg-gray-300 text-gray-800 font-semibold">Expirée</span>
+                                @elseif($demande->etat_demande == 'expirée')
+                                    <span class="px-3 py-1 inline-flex text-sm rounded-full bg-red-700 text-gray-800 font-semibold">Expirée</span>
                                 @else
                                     <span class="px-3 py-1 inline-flex text-sm rounded-full bg-yellow-200 text-yellow-800 font-semibold">En attente</span>
                                 @endif

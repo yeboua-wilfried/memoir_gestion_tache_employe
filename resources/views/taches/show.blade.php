@@ -61,7 +61,11 @@
                     @if ($annexe->type == 'annexe_texte')
                         <p class="text-sm text-gray-700 dark:text-gray-300"><strong>Contenu :</strong> {{ $annexe->description }}</p>
                     @elseif ($annexe->type == 'annexe_fichier')
-                        <a href="{{ asset('storage/' . $annexe->repertoire) }}" class="inline-block mt-2 text-blue-500 hover:underline text-sm" target="_blank">📄 Télécharger</a>
+                        <a href="{{ asset('storage/' . $annexe->repertoire) }}" class="inline-block mt-2 text-blue-500 hover:underline text-sm" target="_blank">📄 Voir le contenue</a>
+                        <a href="{{ route('annexe.telecharger', $annexe->id) }}"class="inline-block mt-2 text-blue-600 hover:underline text-sm">
+                            ⬇️ Télécharger le fichier
+                         </a>
+
                     @endif
                 </div>
 

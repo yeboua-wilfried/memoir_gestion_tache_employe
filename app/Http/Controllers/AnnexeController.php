@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use App\Models\Annexe;
 use App\Models\Tache;
@@ -102,4 +103,18 @@ class AnnexeController extends Controller
         return redirect()->route('taches.show', $annexe->tache_id);
     }
 
+    public function telecharger($id)
+    {
+        $annexe = Annexe::findOrFail($id);
+
+        // Chemin du fichier dans le disque public
+        $chemin = 'public/' . $annexe->repertoire;
+
+        // Vérifie si le fichier existe
+        if (Storage::exists($chemin)) {
+            return Storage::download($chemin);
+        }
+
+        return redirect()->back()->with('error', 'Fichier introuvable.');
+    }
 }

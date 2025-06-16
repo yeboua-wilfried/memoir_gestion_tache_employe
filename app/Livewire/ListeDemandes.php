@@ -22,11 +22,14 @@ class ListeDemandes extends Component
         // Récupération des IDs des utilisateurs accessibles selon le poste
         if ($role === 'medium_employe') {
             // Membres de la même équipe
-            $employeIds = User::where('equipe_id', $user->equipe_id)->pluck('id');
-        } elseif ($role === 'super_employe' || $role === 'super_employe_rh') {
+            $employeIds = User::where('equipe_id', $user->equipe_id)->where('id', '!=', $user->id)->pluck('id');
+        } elseif ($role === 'super_employe') {
             // Membres des équipes du même département
             $equipeIds = Equipe::where('departement_id', $user->equipe->departement_id)->pluck('id');
-            $employeIds = User::whereIn('equipe_id', $equipeIds)->pluck('id');
+            $employeIds = User::whereIn('equipe_id', $equipeIds)->where('id', '!=', $user->id)->pluck('id');
+        } elseif($role === 'super_employe_rh'){
+            // RH, accès à tous les employés
+            $employeIds = User::where('id', '!=', $user->id)->pluck('id');
         } elseif ($role === 'pdg') {
             if ($this->all) {
                 // Afficher toutes les demandes
@@ -78,11 +81,8 @@ class ListeDemandes extends Component
         DemandeUser::create([
             'user_id' => $userId,
             'demande_id' => $id,
-            'etat'=> 1
+            'etat' => 1
         ]);
-
-        // Nombre total de validations pour cette demande
-        $validationCount = DemandeUser::where('demande_id', $id)->count();
 
         $demande = Demande::find($id);
         if (!$demande) {
@@ -90,48 +90,22 @@ class ListeDemandes extends Component
             return;
         }
 
-        // Mise à jour de l'état selon le nombre de validations
-        if ($validationCount >= 2) {
-            $demande->etat_demande = 'validée';
+        // Récupération de toutes les validations liées à cette demande
+        $validations = DemandeUser::where('demande_id', $id)->get();
+
+        if ($validations->count() >= 2) {
+            // Vérifie s'il existe au moins un refus
+            if ($validations->contains('etat', 0)) {
+                $demande->etat_demande = 'refusée';
+            } else {
+                $demande->etat_demande = 'validée';
+            }
         } else {
-            $demande->etat_demande = 'en attente de la validation RH';
+            $demande->etat_demande = 'en attente';
         }
 
         $demande->save();
 
         session()->flash('success', 'Votre validation a été enregistrée.');
-    }
-
-    public function refuserDemande(){
-        $userId = auth()->id();
-
-        // Vérifie si l'utilisateur a déjà refusé cette demande
-        $exists = DemandeUser::where('user_id', $userId)
-            ->where('demande_id', $id)
-            ->exists();
-
-        if ($exists) {
-            session()->flash('error', 'Vous avez déjà refusé cette demande.');
-            return;
-        }
-
-        // Enregistre le refus dans la table pivot
-        DemandeUser::create([
-            'user_id' => $userId,
-            'demande_id' => $id,
-            'etat' => 0
-        ]);
-
-        // Mise à jour de l'état de la demande
-        $demande = Demande::find($id);
-        if (!$demande) {
-            session()->flash('error', 'Demande introuvable.');
-            return;
-        }
-
-        $demande->etat_demande = 'en attente de la validation RH';
-        $demande->save();
-
-        session()->flash('success', 'Votre refus a été enregistré.');
     }
 }

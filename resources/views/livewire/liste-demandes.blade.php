@@ -63,7 +63,7 @@
                                     </button>
 
                                     <button wire:click="refuserDemande({{ $demande->id }})"
-                                        class="px-3 py-1 text-sm rounded bg-green-600 hover:bg-green-700 text-white dark:bg-green-500 dark:hover:bg-green-600">
+                                        class="px-3 py-1 text-sm rounded bg-red-600 hover:bg-red-700 text-white dark:bg-red-500 dark:hover:bg-red-600">
                                         Réfuser
                                     </button>
                                 @else

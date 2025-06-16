@@ -37,11 +37,10 @@
 
             @if (in_array(Auth::user()->poste->role, ['admin', 'pdg', 'super_employe', 'super_employe_rh', 'medium_employe']))
             <!-- Page Content -->
-            <main class="flex">
+            <main class="flex min-h-screen">
                 {{-- Nouveau groupe de liens alignés latéralement sous le header --}}
-                <div class="flex flex-col w-64 h-screen bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 py-6 px-4 space-y-4 shadow-md">
-                    <!-- Liste des employés -->
-                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg' )
+                <div class="flex flex-col w-[200px] min-h-screen bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 py-6 px-4 space-y-4 shadow-md">                    <!-- Liste des employés -->
+                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg' || Auth::user()->poste->role === 'super_employe_rh')
                         <x-nav-link :href="route('employes.index')" :active="request()->routeIs('employes.index')" class="block px-4 py-2 rounded transition-all"
                             :class="request()->routeIs('employes.index') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-blue-100 dark:hover:bg-gray-700'">
                             {{ __('Liste des employés') }}

@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/annexes/texte/{tache}', [AnnexeController::class, 'storeTexte'])->name('annexes.storeTexte');
     Route::post('/annexes/fichier/{tache}', [AnnexeController::class, 'storeFichier'])->name('annexes.storeFichier');
+    Route::get('/telecharger/{annexe}', [AnnexeController::class, 'telecharger'])->name('annexe.telecharger');
     Route::get('/annexes/{annexe}/edit', [AnnexeController::class, 'edit'])->name('annexes.edit');
     Route::put('/annexes/{annexe}', [AnnexeController::class, 'update'])->name('annexes.update');
     Route::delete('/annexes/{annexe}', [AnnexeController::class, 'destroy'])->name('annexes.destroy');
@@ -99,5 +100,6 @@ Route::middleware(['auth', 'role:super_employe,pdg,admin,super_employe_rh'])->gr
 });
 
 //mot de passe des utilisateurs = password
+//php artisan schedule:work
 
 require __DIR__.'/auth.php';

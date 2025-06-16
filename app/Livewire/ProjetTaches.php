@@ -19,17 +19,17 @@ class ProjetTaches extends Component
     public function render()
     {
         $user = Auth::user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
 
         // Récupération des IDs des employés accessibles selon le poste
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Membres de la même équipe
             $employeIds = User::where('equipe_id', $user->equipe_id)->pluck('id');
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Membres des équipes du même département
             $equipeIds = Equipe::where('departement_id', $user->equipe->departement_id)->pluck('id');
             $employeIds = User::whereIn('equipe_id', $equipeIds)->pluck('id');
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Tous les utilisateurs
             $employeIds = User::pluck('id');
         } else {

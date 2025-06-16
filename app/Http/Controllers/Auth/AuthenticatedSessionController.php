@@ -26,6 +26,11 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // Mettre à jour la disponibilité de l'utilisateur connecté
+        $user = auth()->user();
+        $user->presence_absence = 'présent';
+        $user->save();
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('home', absolute: false));

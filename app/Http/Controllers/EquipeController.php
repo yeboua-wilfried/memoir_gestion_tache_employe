@@ -32,4 +32,26 @@ class EquipeController extends Controller
 
         return redirect()->route('equipes.index')->with('success', 'Équipe ajoutée avec succès.');
     }
+
+    public function edit($id)
+    {
+        $equipe = Equipe::findOrFail($id);
+        $departements = Departement::all();
+        return view('equipes.edit', compact('equipe', 'departements'));
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $equipe = Equipe::findOrFail($id);
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'departement_id' => 'required|exists:departements,id',
+        ]);
+
+        $equipe->update($validated);
+
+        return redirect()->route('equipes.index')->with('success', 'Équipe mise à jour avec succès.');
+    }
 }

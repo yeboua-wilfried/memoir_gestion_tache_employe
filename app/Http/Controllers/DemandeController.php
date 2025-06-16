@@ -13,8 +13,8 @@ class DemandeController extends Controller
         $demandes = Demande::where('user_id', auth()->id())->get();
 
         foreach ($demandes as $demande) {
-            if ($demande->etat_disponibilite != 'expirée' && $demande->isExpired()) {
-                $demande->etat_disponibilite = 'expirée';
+            if ($demande->etat_demande != 'expirée' && $demande->isExpired()) {
+                $demande->etat_demande = 'expirée';
                 $demande->save();
             }
         }
@@ -24,6 +24,15 @@ class DemandeController extends Controller
 
     public function indexUser()
     {
+        $demandes = Demande::where('user_id', auth()->id())->get();
+
+        foreach ($demandes as $demande) {
+            if ($demande->etat_demande != 'expirée' && $demande->isExpired()) {
+                $demande->etat_demande = 'expirée';
+                $demande->save();
+            }
+        }
+        
         $user = auth()->user();
         $demandeUsers = DemandeUser::all();
         $demandes = Demande::where('user_id', $user->id)->get();

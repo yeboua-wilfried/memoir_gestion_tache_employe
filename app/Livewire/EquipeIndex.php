@@ -16,16 +16,16 @@ class EquipeIndex extends Component
     public function render()
     {
         $user = Auth::user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
 
         // On limite les équipes visibles selon le rôle de l'utilisateur
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Équipe de l'utilisateur seulement
             $equipes = Equipe::where('id', $user->equipe_id);
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Équipes du même département
             $equipes = Equipe::where('departement_id', $user->equipe->departement_id);
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Toutes les équipes
             $equipes = Equipe::query();
         } else {

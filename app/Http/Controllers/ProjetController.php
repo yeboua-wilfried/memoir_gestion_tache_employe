@@ -20,20 +20,20 @@ class ProjetController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
         $users = collect(); // Valeur par défaut
 
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Chef d'équipe
             $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
 
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Chef de département
             $users = User::whereHas('equipe', function ($query) use ($user) {
                     $query->where('departement_id', $user->equipe->departement_id);
                 })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
 
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Admins ou DG
             $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
 
@@ -67,7 +67,7 @@ class ProjetController extends Controller
                 'description' => $request->description,
                 'date_debut' => $request->date_debut,
                 'date_fin' => $request->date_fin,
-                'etat' => 'en_cours',
+                //'etat' => 'en_cours',
             ]);
 
             Log::debug('Projet créé avec succès', ['projet_id' => $projet->id]);
@@ -84,7 +84,7 @@ class ProjetController extends Controller
                     'description' => $tacheData['description'],
                     'date_debut' => $tacheData['date_debut'],
                     'date_fin' => $tacheData['date_fin'],
-                    'etat' => 'en_cours',
+                    //'etat' => 'en_cours',
                     'user_id' => auth()->id(), // créateur de la tâche
                     'projet_id' => $projet->id,
                 ]);
@@ -128,9 +128,9 @@ class ProjetController extends Controller
     public function edit($id)
     {
         $user = auth()->user();
-        $poste = $user->poste_id;
+        $role = $user->poste->role;
 
-        if (!in_array($poste, [1, 2, 5, 6])) {
+        if (!in_array($role, ['medium_employe', 'super_employe_rh', 'super_employe', 'pdg', 'admin'])) {
             return redirect()->route('home')->with('error', 'Vous n\'êtes pas autorisé à modifier ce projet.');
         }
 
@@ -142,17 +142,17 @@ class ProjetController extends Controller
 
         $users = collect(); // Valeur par défaut
 
-        if ($poste === 5) {
+        if ($role === 'medium_employe') {
             // Chef d'équipe
             $users = User::withCount('tacheRealiserUsers')->where('equipe_id', $user->equipe_id)->where('disponibilite_user', '!=', 'départ')->get();
 
-        } elseif ($poste === 6) {
+        } elseif ($role === 'super_employe') {
             // Chef de département
             $users = User::whereHas('equipe', function ($query) use ($user) {
                     $query->where('departement_id', $user->equipe->departement_id);
                 })->where('disponibilite_user', '!=', 'départ')->withCount('tacheRealiserUsers')->get();
 
-        } elseif (in_array($poste, [1, 2])) {
+        } elseif ($role === 'pdg' || $role === 'admin') {
             // Admins ou DG
             $users = User::withCount('tacheRealiserUsers')->where('disponibilite_user', '!=', 'départ')->get();
 
@@ -221,14 +221,13 @@ class ProjetController extends Controller
                             }
                         }
                     } else {
-                        //l'erreur est ici !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         Log::info("Début de creation de tâche");
                         $nouvelleTache = new Tache([
                             'nom' => $tacheData['nom'],
                             'description' => $tacheData['description'],
                             'date_debut' => $tacheData['date_debut'],
                             'date_fin' => $tacheData['date_fin'],
-                            'etat' => 'en_cours',
+                            'etat' => 'en cours',
                             'user_id' => auth()->id(), // créateur de la tâche
                             'projet_id' => $projet->id,
                         ]);

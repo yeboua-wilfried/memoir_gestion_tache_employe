@@ -1,5 +1,5 @@
-<div class="ml-[5%] mr-[5%]">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+<div class="p-4 bg-white dark:bg-gray-900 rounded shadow">
+    <div class="flex justify-between items-center mb-4">
         <input
             wire:model.live="search"
             type="text"
@@ -34,27 +34,25 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Nom</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Prénom</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Poste</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Équipe</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Sexe</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Téléphone</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Actions</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Nom et Prénoms</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Poste</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Équipe</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Sexe</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Téléphone</th>
+                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 @foreach ($employes as $employe)
                     <tr class="hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->prenom }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->poste->nom_poste ?? 'Non défini' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->equipe->nom ?? 'Non défini' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ ucfirst($employe->sexe) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->telephone }}</td>
-                        <td class="px-6 py-4 text-sm text-center">
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->name }} {{ $employe->prenom }}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->email }}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->poste->nom_poste ?? 'Non défini' }}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->equipe->nom ?? 'Non défini' }}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ ucfirst($employe->sexe) }}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $employe->telephone }}</td>
+                        <td class="px-3 py-2 text-sm text-center">
                             <div class="flex justify-center space-x-2">
                                 <a href="{{ route('employes.edit', $employe->id) }}" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition">
                                     Modifier
