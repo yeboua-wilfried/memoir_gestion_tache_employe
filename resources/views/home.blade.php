@@ -74,7 +74,7 @@
     </div>
 
     {{-- Actions rapides (admin uniquement) --}}
-    @if (Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg' || Auth::user()->poste->role === 'super_employe' || Auth::user()->poste->role === 'super_employe_rh')
+    @if (Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe_info' || Auth::user()->poste->role === 'pdg' || Auth::user()->poste->role === 'super_employe' || Auth::user()->poste->role === 'super_employe_rh')
     <div class="flex flex-wrap gap-4 justify-start">
         <a href="{{ route('tache.create') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105">
             ➕ Créer une tâche

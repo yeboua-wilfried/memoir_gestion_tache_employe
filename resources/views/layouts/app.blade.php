@@ -17,6 +17,7 @@
         <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" />
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}" />
         <link rel="manifest" href="{{ asset('images/site.webmanifest') }}" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -35,12 +36,12 @@
                 </header>
             @endisset
 
-            @if (in_array(Auth::user()->poste->role, ['admin', 'pdg', 'super_employe', 'super_employe_rh', 'medium_employe']))
+            @if (in_array(Auth::user()->poste->role, ['admin', 'pdg', 'super_employe', 'super_employe_rh', 'medium_employe', 'super_employe_info']))
             <!-- Page Content -->
             <main class="flex min-h-screen">
                 {{-- Nouveau groupe de liens alignés latéralement sous le header --}}
                 <div class="flex flex-col w-[200px] min-h-screen bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 py-6 px-4 space-y-4 shadow-md">                    <!-- Liste des employés -->
-                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg' || Auth::user()->poste->role === 'super_employe_rh')
+                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe_info' || Auth::user()->poste->role === 'pdg' || Auth::user()->poste->role === 'super_employe_rh')
                         <x-nav-link :href="route('employes.index')" :active="request()->routeIs('employes.index')" class="block px-4 py-2 rounded transition-all"
                             :class="request()->routeIs('employes.index') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-blue-100 dark:hover:bg-gray-700'">
                             {{ __('Liste des employés') }}
@@ -60,7 +61,7 @@
                     </x-nav-link>
 
                     <!-- Tous les postes -->
-                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg')
+                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe_info' || Auth::user()->poste->role === 'pdg')
                         <x-nav-link :href="route('postes.index')" :active="request()->routeIs('postes.index')" class="block px-4 py-2 rounded transition-all"
                             :class="request()->routeIs('postes.index') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-blue-100 dark:hover:bg-gray-700'">
                             {{ __('Tous les postes') }}
@@ -68,7 +69,7 @@
                     @endif
 
                     <!-- Toutes les équipes -->
-                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe' || Auth::user()->poste->role === 'super_employe_rh' || Auth::user()->poste->role === 'pdg')
+                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe_info' || Auth::user()->poste->role === 'super_employe' || Auth::user()->poste->role === 'super_employe_rh' || Auth::user()->poste->role === 'pdg')
                         <x-nav-link :href="route('equipes.index')" :active="request()->routeIs('equipes.index')" class="block px-4 py-2 rounded transition-all"
                             :class="request()->routeIs('equipes.index') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-blue-100 dark:hover:bg-gray-700'">
                             {{ __('Toutes les équipes') }}
@@ -76,7 +77,7 @@
                     @endif
 
                     <!-- Tous les départements -->
-                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'pdg')
+                    @if(Auth::user()->poste->role === 'admin' || Auth::user()->poste->role === 'super_employe_info' || Auth::user()->poste->role === 'pdg')
                         <x-nav-link :href="route('departements.index')" :active="request()->routeIs('departements.index')" class="block px-4 py-2 rounded transition-all"
                             :class="request()->routeIs('departements.index') ? 'bg-blue-600 text-white font-semibold' : 'hover:bg-blue-100 dark:hover:bg-gray-700'">
                             {{ __('Tous les départements') }}

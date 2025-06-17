@@ -37,6 +37,16 @@ class Poste extends Model
         return $this->role === 'super_employe';
     }
 
+    public function isSuperEmployeRh()
+    {
+        return $this->role === 'super_employe_rh';
+    }
+
+    public function isSuperEmployeInfo()
+    {
+        return $this->role === 'super_employe_info';
+    }
+
     public function isMediumEmploye()
     {
         return $this->role === 'medium_employe';
@@ -45,5 +55,10 @@ class Poste extends Model
     public function isBottomEmploye()
     {
         return $this->role === 'bottom_employe';
+    }
+
+    public function isPdg()
+    {
+        return $this->role === 'pdg';
     }
 }

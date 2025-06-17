@@ -25,7 +25,7 @@ class PosteController extends Controller
         $validated = $request->validate([
             'nom_poste' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'role' => 'required|in:admin,pdg,super_employe,super_employe_rh,medium_employe,bottom_employe',
+            'role' => 'required|in:admin,pdg,super_employe,super_employe_rh,super_employe_info,medium_employe,bottom_employe',
         ]);
 
         Poste::create($validated);

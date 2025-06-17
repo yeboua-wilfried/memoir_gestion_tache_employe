@@ -18,9 +18,10 @@ use Illuminate\Support\Facades\Route;
     return view('welcome');
 });*/
 
-Route::get('/dashboard', function () {
+/*Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');*/
+Route::get('/dashboard', [HomeController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [HomeController::class, 'home'])->name('home');
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/annexes/{annexe}', [AnnexeController::class, 'destroy'])->name('annexes.destroy');
 });
 
-Route::middleware(['auth', 'role:super_employe,pdg,admin,super_employe_rh'])->group(function () {
+Route::middleware(['auth', 'role:super_employe,pdg,admin,super_employe_rh,super_employe_info'])->group(function () {
     Route::get('/liste_employe', [EmployeController::class, 'index'])->name('employes.index');
     Route::get('/employes/create', [EmployeController::class, 'create'])->name('employes.create');
     Route::post('/employes', [EmployeController::class, 'store'])->name('employes.store');

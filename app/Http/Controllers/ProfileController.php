@@ -32,7 +32,7 @@ class ProfileController extends Controller
 
             // Chef de département
             $departementId = $user->equipe->departement_id ?? null;
-            $chefDept = User::whereHas('poste', fn($q) => $q->whereIn('role', ['super_employe', 'super_employe_rh']))
+            $chefDept = User::whereHas('poste', fn($q) => $q->whereIn('role', ['super_employe', 'super_employe_rh', 'super_employe_info']))
                 ->whereHas('equipe', fn($q) => $q->where('departement_id', $departementId))
                 ->first();
 
@@ -58,7 +58,7 @@ class ProfileController extends Controller
 
             // Chef de département
             $departementId = $user->equipe->departement_id ?? null;
-            $chefDept = User::whereHas('poste', fn($q) => $q->whereIn('role', ['super_employe', 'super_employe_rh']))
+            $chefDept = User::whereHas('poste', fn($q) => $q->whereIn('role', ['super_employe', 'super_employe_rh', 'super_employe_info']))
                 ->whereHas('equipe', fn($q) => $q->where('departement_id', $departementId))
                 ->first();
 
@@ -66,12 +66,18 @@ class ProfileController extends Controller
                 $superieurs->push($chefDept);
             }
 
-        } elseif (in_array($role, ['super_employe', 'super_employe_rh'])) {
+        } elseif (in_array($role, ['super_employe', 'super_employe_rh', 'super_employe_info'])) {
             // PDG
             $pdg = User::whereHas('poste', fn($q) => $q->where('role', 'pdg'))->first();
             if ($pdg) {
                 $superieurs->push($pdg);
             }
+            //dd($pdg);
+        }
+
+        elseif ($role === 'pdg') {
+            $pdg = '';
+            $superieurs->push($pdg);
         }
 
         return view('profile.edit', [

@@ -68,15 +68,22 @@ class EmployeController extends Controller
         }
 
         // Règle 2 : Un seul chef de département par département
-        if ($poste->isSuperEmploye()) {
-            $chefDepartementExiste = User::where('poste_id', $poste->id)
-                ->whereHas('equipe', function ($query) use ($equipe) {
+        if ($poste->isSuperEmploye() || $poste->isSuperEmployeRh() || $poste->isSuperEmployeInfo()) {
+            $chefDepartementExiste = User::where('poste_id', $poste->id)->whereHas('equipe', function ($query) use ($equipe) {
                     $query->where('departement_id', $equipe->departement_id);
                 })
                 ->exists();
 
             if ($chefDepartementExiste) {
                 return back()->withErrors(['equipe_id' => 'Ce département a déjà un chef de département.'])->withInput();
+            }
+        }
+
+        if ($poste-> ispdg()) {
+            $chefPdgExiste = User::where($poste->$role, 'pdg')->exists();
+
+            if ($chefPdgExiste) {
+                return back()->withErrors(['poste_id' => 'Il y a déjà un PDG.'])->withInput();
             }
         }
 
@@ -153,7 +160,7 @@ class EmployeController extends Controller
         }
 
         // Règle 2 : Un seul chef de département par département
-        if ($poste->isSuperEmploye()) {
+        if ($poste->isSuperEmploye() || $poste->isSuperEmployeRh() || $poste->isSuperEmployeInfo()) {
             $chefDepartementExiste = User::where('poste_id', $poste->id)
                 ->whereHas('equipe', function ($query) use ($equipe) {
                     $query->where('departement_id', $equipe->departement_id);
@@ -162,6 +169,14 @@ class EmployeController extends Controller
 
             if ($chefDepartementExiste) {
                 return back()->withErrors(['equipe_id' => 'Ce département a déjà un chef de département.'])->withInput();
+            }
+        }
+
+        if ($poste-> ispdg()) {
+            $chefPdgExiste = User::where($poste->$role, 'pdg')->exists();
+
+            if ($chefPdgExiste) {
+                return back()->withErrors(['poste_id' => 'Il y a déjà un PDG.'])->withInput();
             }
         }
 

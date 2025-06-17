@@ -34,6 +34,7 @@
                 <option value="pdg" {{ old('role') === 'pdg' ? 'selected' : '' }}>PDG</option>
                 <option value="super_employe" {{ old('role') === 'super_employe' ? 'selected' : '' }}>Super employé</option>
                 <option value="super_employe_rh" {{ old('role') === 'super_employe_rh' ? 'selected' : '' }}>Super employé RH</option>
+                <option value="super_employe_info" {{ old('role') === 'super_employe_info' ? 'selected' : '' }}>Super employé info</option>
                 <option value="medium_employe" {{ old('role') === 'medium_employe' ? 'selected' : '' }}>Employé medium</option>
                 <option value="bottom_employe" {{ old('role') === 'bottom_employe' ? 'selected' : '' }}>Employé simple</option>
             </select>

@@ -11,14 +11,21 @@ class DepartementController extends Controller
 {
     public function index()
     {
-        // Récupérer tous les départements avec leurs équipes et leurs chefs
-        $departements = Departement::with('equipes.users')->get();
+        // Récupérer tous les départements avec leurs équipes et les utilisateurs de ces équipes
+        $departements = Departement::with('equipes.users.poste')->get();
 
         // Ajouter le chef pour chaque département
         $departementsAvecChef = $departements->map(function ($departement) {
-            // Filtrer les utilisateurs dont le poste_id est 6 et qui sont dans une équipe de ce département
-            $chef = $departement->equipes->flatMap->users
-                ->firstWhere('poste_id', 6);
+            // Rechercher un utilisateur ayant un poste avec un rôle spécifique
+            $chef = $departement->equipes
+                ->flatMap->users
+                ->first(function ($user) {
+                    return in_array(optional($user->poste)->role, [
+                        'super_employe',
+                        'super_employe_rh',
+                        'super_employe_info'
+                    ]);
+                });
 
             return [
                 'id' => $departement->id,
@@ -45,6 +52,31 @@ class DepartementController extends Controller
 
         Departement::create($validated);
 
-        return redirect()->route('departement.index')->with('success', 'Département ajouté avec succès.');
+        return redirect()->route('departements.index')->with('success', 'Département ajouté avec succès.');
+    }
+
+    public function edit($id)
+    {
+        $departement = Departement::findOrFail($id);
+        return view('departements.edit', compact('departement'));
+    }
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $departement = Departement::findOrFail($id);
+        $departement->update($validated);
+
+        return redirect()->route('departements.index')->with('success', 'Département mis à jour avec succès.');
+    }
+    public function destroy($id)
+    {
+        $departement = Departement::findOrFail($id);
+        $departement->delete();
+
+        return redirect()->route('departements.index')->with('success', 'Département supprimé avec succès.');
     }
 }
